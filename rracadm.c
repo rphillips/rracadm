@@ -24,6 +24,7 @@ typedef struct racadm_conf_t {
     const char *username;
     const char *password;
     short port;
+    int debug;
 } racadm_conf_t;
 
 typedef struct racadm_transport_t {
@@ -52,7 +53,7 @@ int main(int argc, char *const *argv)
     curl_global_init(CURL_GLOBAL_ALL);
     xmlInitParser();
 
-    while ((c = getopt(argc, argv, "r:u:p:P:")) != -1) {
+    while ((c = getopt(argc, argv, "dr:u:p:P:")) != -1) {
         switch (c) {
         case 'u':
             conf->username = optarg;
@@ -65,6 +66,9 @@ int main(int argc, char *const *argv)
             break;
         case 'r':
             conf->host = optarg;
+            break;
+        case 'd':
+            conf->debug++;
             break;
         case '?':
             usage();
@@ -153,17 +157,20 @@ racadm_transport_create(racadm_conf_t *conf)
 
     curl_easy_setopt(t->curl, CURLOPT_NOPROGRESS, 1);
     curl_easy_setopt(t->curl, CURLOPT_FAILONERROR, 1);
-#ifdef RACADM_DEBUG
-    curl_easy_setopt(t->curl, CURLOPT_VERBOSE, 1);
-#endif
     curl_easy_setopt(t->curl, CURLOPT_CONNECTTIMEOUT, 5);
     curl_easy_setopt(t->curl, CURLOPT_SSL_VERIFYPEER, 0L);
     curl_easy_setopt(t->curl, CURLOPT_SSL_VERIFYHOST, 0L);
     curl_easy_setopt(t->curl, CURLOPT_HTTPHEADER, t->headers);
     curl_easy_setopt(t->curl, CURLOPT_WRITEDATA, t);
     curl_easy_setopt(t->curl, CURLOPT_WRITEFUNCTION, racadm_write_cb);
-    /* remote racadm currently doesn't return the sid within a cookie via 
-       the remote racadm CGIs 
+
+    if (conf->debug) {
+        curl_easy_setopt(t->curl, CURLOPT_VERBOSE, 1);
+    }
+
+    /* the remote racadm CGIs currently do not return the sid within a cookie.
+     * if it did, then this line could be used instead of the parse routine to
+     * fetch the sid.
      */
     //curl_easy_setopt(t->curl, CURLOPT_COOKIEFILE, "");
     return t;
