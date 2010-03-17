@@ -72,13 +72,30 @@ int main(int argc, char *const *argv)
         }
     }
 
-    if (conf->username == NULL || conf->password == NULL ||
+    if (conf->username == NULL || 
+        conf->password == NULL ||
         conf->host == NULL) {
         usage();
     }
 
+    /* flatten the command line arguments for racadm */
+    char *racadm_args, *p;
+    int i, len;
+    for (i=optind,len=0; i<argc; i++) {
+        len += strlen(argv[i]);
+        len += 1;
+    }
+
+    p = racadm_args = malloc(len);
+    for (i=optind; i<argc; i++) {
+        strcpy(p, argv[i]);
+        if (i != (argc-1))
+            strcat(p, " ");
+        p += strlen(argv[i]) + 1;
+    }
+
     racadm_transport_t *t = racadm_transport_create(conf);
-    racadm_execute(t, argv[optind]);
+    racadm_execute(t, racadm_args);
     racadm_destroy(t);
 
     xmlCleanupParser();
