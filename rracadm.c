@@ -52,7 +52,7 @@ int main(int argc, char *const *argv)
     curl_global_init(CURL_GLOBAL_ALL);
     xmlInitParser();
 
-    while ((c = getopt(argc, argv, "h:u:p:P:")) != -1) {
+    while ((c = getopt(argc, argv, "r:u:p:P:")) != -1) {
         switch (c) {
         case 'u':
             conf->username = optarg;
@@ -63,7 +63,7 @@ int main(int argc, char *const *argv)
         case 'P':
             conf->port = atoi(optarg);
             break;
-        case 'h':
+        case 'r':
             conf->host = optarg;
             break;
         case '?':
@@ -108,7 +108,7 @@ usage()
 {
     fprintf(stdout, "rracadm [options] -- commands \n");
     fprintf(stdout, "Options:\n");
-    fprintf(stdout, "-h [value] : hostname\n");
+    fprintf(stdout, "-r [value] : hostname\n");
     fprintf(stdout, "-P [value] : port\n");
     fprintf(stdout, "-u [value] : username\n");
     fprintf(stdout, "-p [value] : password\n");
