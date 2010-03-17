@@ -39,6 +39,7 @@ typedef struct racadm_transport_t {
 racadm_transport_t* racadm_transport_create(racadm_conf_t *conf);
 int                 racadm_execute(racadm_transport_t *t, const char *cmd);
 void                racadm_destroy(racadm_transport_t *t);
+void                usage();
 
 int main(int argc, char *const *argv)
 {
@@ -66,8 +67,14 @@ int main(int argc, char *const *argv)
             conf->host = optarg;
             break;
         case '?':
+            usage();
             break;
         }
+    }
+
+    if (conf->username == NULL || conf->password == NULL ||
+        conf->host == NULL) {
+        usage();
     }
 
     racadm_transport_t *t = racadm_transport_create(conf);
@@ -77,6 +84,18 @@ int main(int argc, char *const *argv)
     xmlCleanupParser();
 
     return 0;
+}
+
+void 
+usage()
+{
+    fprintf(stdout, "rracadm [options] -- commands \n");
+    fprintf(stdout, "Options:\n");
+    fprintf(stdout, "-h [value] : hostname\n");
+    fprintf(stdout, "-P [value] : port\n");
+    fprintf(stdout, "-u [value] : username\n");
+    fprintf(stdout, "-p [value] : password\n");
+    exit(0);
 }
 
 static ssize_t
@@ -272,7 +291,7 @@ racadm_execute(racadm_transport_t *t, const char *cmd)
     /* execute */
     res = racadm_cmd(t, cmd);
     if (res != 0) {
-        fprintf(stderr, "login error: %d %s\n", res, curl_easy_strerror(res));
+        fprintf(stderr, "cmd error: %d %s\n", res, curl_easy_strerror(res));
         return -1;
     }
     /* display */
@@ -284,7 +303,7 @@ racadm_execute(racadm_transport_t *t, const char *cmd)
     /* logout */
     res = racadm_logout(t);
     if (res != 0) {
-        fprintf(stderr, "login error: %d %s\n", res, curl_easy_strerror(res));
+        fprintf(stderr, "logout error: %d %s\n", res, curl_easy_strerror(res));
         return -1;
     }
 
