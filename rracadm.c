@@ -86,8 +86,7 @@ int main(int argc, char *const *argv)
     char *racadm_args, *p;
     int i, len;
     for (i=optind,len=0; i<argc; i++) {
-        len += strlen(argv[i]);
-        len += 1;
+        len += strlen(argv[i]) + 1;
     }
 
     p = racadm_args = malloc(len);
@@ -101,6 +100,8 @@ int main(int argc, char *const *argv)
     racadm_transport_t *t = racadm_transport_create(conf);
     racadm_execute(t, racadm_args);
     racadm_destroy(t);
+
+    free(racadm_args);
 
     xmlCleanupParser();
 
@@ -119,8 +120,8 @@ usage()
     exit(0);
 }
 
-static ssize_t
-racadm_write_cb(void *ptr, size_t size, size_t nmemb, void *stream)
+static size_t
+racadm_write_cb(const void *ptr, size_t size, size_t nmemb, void *stream)
 {
     racadm_transport_t *t = stream;
     size_t len = size * nmemb;
