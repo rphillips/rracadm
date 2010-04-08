@@ -237,20 +237,19 @@ racadm_cmd(racadm_transport_t *t, const char *cmd)
     return curl_easy_perform(t->curl);
 }
 
-static int
-racadm_parse(racadm_transport_t *t, const xmlChar* xpathExpr, char **result)
+static char*
+racadm_parse(racadm_transport_t *t, const xmlChar* xpathExpr)
 {
+    char *result = NULL;
     xmlDocPtr doc;
     xmlXPathContextPtr xpathCtx; 
     xmlXPathObjectPtr xpathObj; 
 
-    *result = NULL;
-    
     /* Load XML document */
     doc = xmlParseMemory(t->data, t->size);
     if (doc == NULL) {
-    fprintf(stderr, "Error: unable to parse memory\n");
-    return(-1);
+        fprintf(stderr, "Error: unable to parse memory\n");
+        return NULL;
     }
 
     /* Create xpath evaluation context */
@@ -258,7 +257,7 @@ racadm_parse(racadm_transport_t *t, const xmlChar* xpathExpr, char **result)
     if(xpathCtx == NULL) {
         fprintf(stderr,"Error: unable to create new XPath context\n");
         xmlFreeDoc(doc); 
-        return(-1);
+        return NULL;
     }
 
     /* Evaluate xpath expression */
@@ -267,12 +266,12 @@ racadm_parse(racadm_transport_t *t, const xmlChar* xpathExpr, char **result)
         fprintf(stderr,"Error: unable to evaluate xpath expression \"%s\"\n", xpathExpr);
         xmlXPathFreeContext(xpathCtx); 
         xmlFreeDoc(doc); 
-        return(-1);
+        return NULL;
     }
 
     /* Print results */
     if (xpathObj->nodesetval->nodeTab) {
-        *result = xmlNodeListGetString(doc, 
+        result = xmlNodeListGetString(doc, 
                                        xpathObj->nodesetval->nodeTab[0]->xmlChildrenNode, 
                                        1);
     }
@@ -282,7 +281,7 @@ racadm_parse(racadm_transport_t *t, const xmlChar* xpathExpr, char **result)
     xmlXPathFreeContext(xpathCtx); 
     xmlFreeDoc(doc); 
     
-    return(0);
+    return result;
 }
 
 static void
@@ -306,7 +305,7 @@ racadm_execute(racadm_transport_t *t, const char *cmd)
         return -1;
     }
     /* parse for sid, since the CGI doesn't return the SID in a cookie */
-    racadm_parse(t, "//SID", &result);
+    result = racadm_parse(t, "//SID");
     if (result) {
         racadm_setup_cookie(t, result);
         free(result);
@@ -318,7 +317,7 @@ racadm_execute(racadm_transport_t *t, const char *cmd)
         return -1;
     }
     /* display */
-    racadm_parse(t, "//CMDOUTPUT", &result);
+    result = racadm_parse(t, "//CMDOUTPUT");
     if (result) {
         fprintf(stdout, "%s\n", result);
         free(result);
