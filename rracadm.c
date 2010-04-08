@@ -270,12 +270,10 @@ racadm_parse(racadm_transport_t *t, const xmlChar* xpathExpr, char **result)
     }
 
     /* Print results */
-    if (xpathObj->nodesetval) {
-        xmlNodePtr node = xpathObj->nodesetval->nodeTab[0]->children;
-        xmlBufferPtr buf = xmlBufferCreate();
-        xmlNodeDump(buf, doc, node, 0, 0);
-        *result = xmlStrdup(xmlBufferContent(buf));
-        xmlBufferFree(buf);
+    if (xpathObj->nodesetval->nodeTab) {
+        *result = xmlNodeListGetString(doc, 
+                                       xpathObj->nodesetval->nodeTab[0]->xmlChildrenNode, 
+                                       1);
     }
 
     /* Cleanup */
