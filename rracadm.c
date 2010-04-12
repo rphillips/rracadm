@@ -306,10 +306,12 @@ racadm_execute(racadm_transport_t *t, const char *cmd)
     }
     /* parse for sid, since the CGI doesn't return the SID in a cookie */
     result = racadm_parse(t, "//SID");
-    if (result) {
-        racadm_setup_cookie(t, result);
-        free(result);
+    if (!result || *result == '0') {
+        fprintf(stderr, "could not login to device\n");
+        return -1;
     }
+    racadm_setup_cookie(t, result);
+    free(result);
     /* execute */
     res = racadm_cmd(t, cmd);
     if (res != 0) {
