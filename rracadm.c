@@ -315,7 +315,7 @@ racadm_execute(racadm_transport_t *t, const char *cmd)
     free(result);
     /* execute */
     res = racadm_cmd(t, cmd);
-    if (res != 0) {
+    if (res != CURLE_OK) {
         fprintf(stderr, "cmd error: %d %s\n", res, curl_easy_strerror(res));
         return -1;
     }
@@ -327,7 +327,7 @@ racadm_execute(racadm_transport_t *t, const char *cmd)
     }
     /* logout */
     res = racadm_logout(t);
-    if (res != 0) {
+    if (res != CURLE_OK) {
         fprintf(stderr, "logout error: %d %s\n", res, curl_easy_strerror(res));
         return -1;
     }
