@@ -117,6 +117,7 @@ usage()
     fprintf(stdout, "-P [value] : port\n");
     fprintf(stdout, "-u [value] : username\n");
     fprintf(stdout, "-p [value] : password\n");
+    fprintf(stdout, "-d         : debug\n");
     exit(0);
 }
 
