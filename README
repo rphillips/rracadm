@@ -1,7 +1,10 @@
-License
+Purpose
 -------
 
-Apache 2.0
+A remote racadm client for Dell products. Does not require root privileges to
+run.
+
+!_Use at your own risk_!
 
 Dependencies
 ------------
@@ -13,3 +16,8 @@ Usage
 -----
 
 rracadm -r 192.168.0.120 -u racuser1 -p aygqt12a -- getsysinfo
+
+License
+-------
+
+Apache 2.0
