@@ -1,0 +1,15 @@
+License
+-------
+
+Apache 2.0
+
+Dependencies
+------------
+
+* libcurl
+* libxml2
+
+Usage
+-----
+
+rracadm -r 192.168.0.120 -u racuser1 -p aygqt12a -- getsysinfo
