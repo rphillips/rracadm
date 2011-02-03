@@ -69,7 +69,7 @@ int main(int argc, char *const *argv)
   curl_global_init(CURL_GLOBAL_ALL);
   xmlInitParser();
 
-  while ((c = getopt(argc, argv, "vdr:u:p:P:")) != -1) {
+  while ((c = getopt(argc, argv, "vhdr:u:p:P:")) != -1) {
     switch (c) {
     case 'u':
       conf->username = optarg;
@@ -86,6 +86,7 @@ int main(int argc, char *const *argv)
     case 'd':
       conf->debug++;
       break;
+    case 'h':
     case '?':
       usage();
       break;
@@ -124,7 +125,9 @@ int main(int argc, char *const *argv)
 
 void usage()
 {
-  fprintf(stdout, "rracadm [options] -- commands \n");
+  fprintf(stdout, "rracadm - unofficial remote racadm utility (v%s)\n", RRACADM_VERSION);
+  fprintf(stdout, "\n");
+  fprintf(stdout, "usage: rracadm [-d] [-P port] -u <username> -p <password> -- commands \n");
   fprintf(stdout, "Options:\n");
   fprintf(stdout, "-r [value] : hostname\n");
   fprintf(stdout, "-P [value] : port\n");
