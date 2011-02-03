@@ -46,7 +46,7 @@ int main(int argc, char *const *argv)
 {
     int c;
     racadm_conf_t *conf;
-    
+
     conf = calloc(1, sizeof(*conf));
     conf->port = 443;
 
@@ -76,7 +76,7 @@ int main(int argc, char *const *argv)
         }
     }
 
-    if (conf->username == NULL || 
+    if (conf->username == NULL ||
         conf->password == NULL ||
         conf->host == NULL) {
         usage();
@@ -108,7 +108,7 @@ int main(int argc, char *const *argv)
     return 0;
 }
 
-void 
+void
 usage()
 {
     fprintf(stdout, "rracadm [options] -- commands \n");
@@ -131,14 +131,14 @@ racadm_write_cb(const void *ptr, size_t size, size_t nmemb, void *stream)
         t->data = malloc(len + 2);
     }
     else {
-        t->data = realloc(t->data, t->size + len + 1); 
-    }   
+        t->data = realloc(t->data, t->size + len + 1);
+    }
 
     if (t->data) {
         memcpy(&(t->data[t->size]), ptr, len);
         t->size += len;
         t->data[t->size] = 0;
-    }   
+    }
 
     return len;
 }
@@ -149,8 +149,8 @@ racadm_transport_create(racadm_conf_t *conf)
     racadm_transport_t *t = calloc(1, sizeof(*t));
 
     t->headers = NULL;
-    t->headers = curl_slist_append(t->headers, "Content-type: text/xml"); 
-    t->headers = curl_slist_append(t->headers, "Connection: Keep-Alive"); 
+    t->headers = curl_slist_append(t->headers, "Content-type: text/xml");
+    t->headers = curl_slist_append(t->headers, "Connection: Keep-Alive");
 
     t->conf = conf;
     t->curl = curl_easy_init();
@@ -178,7 +178,7 @@ racadm_transport_create(racadm_conf_t *conf)
     return t;
 }
 
-static void 
+static void
 racadm_transport_reset(racadm_transport_t *t)
 {
     free(t->data);
@@ -196,7 +196,7 @@ racadm_login(racadm_transport_t *t)
 
     snprintf(url, sizeof(url), "https://%s:%i/cgi-bin/login",
              t->conf->host, t->conf->port);
-    snprintf(data, sizeof(data), 
+    snprintf(data, sizeof(data),
              "<?xml version='1.0'?><LOGIN><REQ><USERNAME>%s</USERNAME><PASSWORD>%s</PASSWORD></REQ></LOGIN>",
              t->conf->username, t->conf->password);
 
@@ -213,7 +213,7 @@ racadm_logout(racadm_transport_t *t)
 {
     char url[1024];
     racadm_transport_reset(t);
-    snprintf(url, sizeof(url), "https://%s:%i/cgi-bin/logout", 
+    snprintf(url, sizeof(url), "https://%s:%i/cgi-bin/logout",
              t->conf->host, t->conf->port);
     curl_easy_setopt(t->curl, CURLOPT_URL, url);
     return curl_easy_perform(t->curl);
@@ -228,7 +228,7 @@ racadm_cmd(racadm_transport_t *t, const char *cmd)
     racadm_transport_reset(t);
 
     snprintf(url, sizeof(url), "https://%s:%i/cgi-bin/exec", t->conf->host, t->conf->port);
-    snprintf(data, sizeof(data), 
+    snprintf(data, sizeof(data),
              "<?xml version='1.0'?><EXEC><REQ><CMDINPUT>racadm %s</CMDINPUT><MAXOUTPUTLEN>0x0fff</MAXOUTPUTLEN></REQ></EXEC>",
              cmd);
     curl_easy_setopt(t->curl, CURLOPT_POSTFIELDS, data);
@@ -243,8 +243,8 @@ racadm_parse(racadm_transport_t *t, const xmlChar* xpathExpr)
 {
     char *result = NULL;
     xmlDocPtr doc;
-    xmlXPathContextPtr xpathCtx; 
-    xmlXPathObjectPtr xpathObj; 
+    xmlXPathContextPtr xpathCtx;
+    xmlXPathObjectPtr xpathObj;
 
     /* Load XML document */
     doc = xmlParseMemory(t->data, t->size);
@@ -257,7 +257,7 @@ racadm_parse(racadm_transport_t *t, const xmlChar* xpathExpr)
     xpathCtx = xmlXPathNewContext(doc);
     if(xpathCtx == NULL) {
         fprintf(stderr,"Error: unable to create new XPath context\n");
-        xmlFreeDoc(doc); 
+        xmlFreeDoc(doc);
         return NULL;
     }
 
@@ -265,23 +265,23 @@ racadm_parse(racadm_transport_t *t, const xmlChar* xpathExpr)
     xpathObj = xmlXPathEvalExpression(xpathExpr, xpathCtx);
     if(xpathObj == NULL) {
         fprintf(stderr,"Error: unable to evaluate xpath expression \"%s\"\n", xpathExpr);
-        xmlXPathFreeContext(xpathCtx); 
-        xmlFreeDoc(doc); 
+        xmlXPathFreeContext(xpathCtx);
+        xmlFreeDoc(doc);
         return NULL;
     }
 
     /* Print results */
     if (xpathObj->nodesetval->nodeTab) {
-        result = xmlNodeListGetString(doc, 
-                                       xpathObj->nodesetval->nodeTab[0]->xmlChildrenNode, 
+        result = xmlNodeListGetString(doc,
+                                       xpathObj->nodesetval->nodeTab[0]->xmlChildrenNode,
                                        1);
     }
 
     /* Cleanup */
     xmlXPathFreeObject(xpathObj);
-    xmlXPathFreeContext(xpathCtx); 
-    xmlFreeDoc(doc); 
-    
+    xmlXPathFreeContext(xpathCtx);
+    xmlFreeDoc(doc);
+
     return result;
 }
 
