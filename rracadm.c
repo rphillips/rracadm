@@ -127,7 +127,7 @@ void usage()
 {
   fprintf(stdout, "rracadm - unofficial remote racadm utility (v%s)\n", RRACADM_VERSION);
   fprintf(stdout, "\n");
-  fprintf(stdout, "usage: rracadm [-d] [-P port] -u <username> -p <password> -- commands \n");
+  fprintf(stdout, "usage: rracadm [-d] [-P port] -r <ip or fqdn> -u <username> -p <password> -- commands \n");
   fprintf(stdout, "Options:\n");
   fprintf(stdout, "-r [value] : hostname\n");
   fprintf(stdout, "-P [value] : port\n");
